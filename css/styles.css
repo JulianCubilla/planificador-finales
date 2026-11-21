@@ -1,0 +1,45 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8fafc;
+}
+.progress-bar {
+    transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* Checkboxes personalizados */
+.custom-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 0.4rem;
+    border: 2px solid #cbd5e1;
+    display: inline-grid;
+    place-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+    background-color: #ffffff;
+    flex-shrink: 0;
+}
+.custom-checkbox::before {
+    content: "";
+    width: 0.72rem;
+    height: 0.72rem;
+    transform: scale(0);
+    transition: 120ms transform ease-in-out;
+    box-shadow: inset 1em 1em white;
+    transform-origin: center;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+.custom-checkbox:checked::before {
+    transform: scale(1);
+}
+/* Resumido (Azul / Índigo) */
+.cb-resumido:hover { border-color: #3b82f6; }
+.cb-resumido:checked { background-color: #2563eb; border-color: #2563eb; }
+/* Estudiado (Esmeralda) */
+.cb-estudiado:hover { border-color: #10b981; }
+.cb-estudiado:checked { background-color: #059669; border-color: #059669; }
+
+/* Scrollbar sutil para selector de días */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
