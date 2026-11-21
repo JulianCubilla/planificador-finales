@@ -1080,20 +1080,24 @@ function renderContent() {
 
                     <!-- Columna Derecha: Checkboxes Duales -->
                     <div class="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 pt-3 sm:pt-1 border-t sm:border-t-0 border-slate-100 shrink-0">
-                        <label class="flex items-center sm:justify-center gap-2 sm:w-20 cursor-pointer select-none">
-                            <input type="checkbox" 
-                                class="custom-checkbox cb-resumido" 
-                                ${st.resumido ? 'checked' : ''} 
-                                onchange="toggleTopicCheck('${topic.id}', 'resumido')">
-                            <span class="text-xs font-bold text-blue-700 sm:hidden">Resumido</span>
+                        <label class="flex items-center sm:justify-center gap-2 sm:w-auto cursor-pointer select-none">
+                            <span class="cb-wrap">
+                                <input type="checkbox" 
+                                    class="custom-checkbox cb-resumido" 
+                                    ${st.resumido ? 'checked' : ''} 
+                                    onchange="toggleTopicCheck('${topic.id}', 'resumido')">
+                            </span>
+                            <span class="text-xs font-bold text-blue-700">Resumido</span>
                         </label>
 
-                        <label class="flex items-center sm:justify-center gap-2 sm:w-20 cursor-pointer select-none">
-                            <input type="checkbox" 
-                                class="custom-checkbox cb-estudiado" 
-                                ${st.estudiado ? 'checked' : ''} 
-                                onchange="toggleTopicCheck('${topic.id}', 'estudiado')">
-                            <span class="text-xs font-bold text-emerald-700 sm:hidden">Estudiado</span>
+                        <label class="flex items-center sm:justify-center gap-2 sm:w-auto cursor-pointer select-none">
+                            <span class="cb-wrap">
+                                <input type="checkbox" 
+                                    class="custom-checkbox cb-estudiado" 
+                                    ${st.estudiado ? 'checked' : ''} 
+                                    onchange="toggleTopicCheck('${topic.id}', 'estudiado')">
+                            </span>
+                            <span class="text-xs font-bold text-emerald-700">Estudiado</span>
                         </label>
                     </div>
                 </div>
@@ -1173,6 +1177,43 @@ function renderUnifiedDaySpecialBanner(container, dateStr) {
 // =========================================================================
 // INTERACCIONES DEL USUARIO (Checkboxes, Estrellas, Notas)
 // =========================================================================
+function celebrateCheck(topicId, field) {
+    const card = document.getElementById(`card-${topicId}`);
+    if (!card) return;
+    const input = card.querySelector(field === 'resumido' ? '.cb-resumido' : '.cb-estudiado');
+    if (!input) return;
+
+    // Rebote + aro de luz + tilde animado
+    input.classList.remove('cb-pop');
+    void input.offsetWidth;
+    input.classList.add('cb-pop');
+    setTimeout(() => input.classList.remove('cb-pop'), 700);
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // Chispas alrededor del checkbox
+    const wrap = input.parentElement;
+    const total = 8;
+    for (let i = 0; i < total; i++) {
+        const spark = document.createElement('span');
+        spark.className = 'cb-spark ' + (field === 'resumido' ? 'cb-spark-blue' : 'cb-spark-green');
+        const angle = (i / total) * 2 * Math.PI;
+        spark.style.setProperty('--dx', Math.round(Math.cos(angle) * 24) + 'px');
+        spark.style.setProperty('--dy', Math.round(Math.sin(angle) * 24) + 'px');
+        wrap.appendChild(spark);
+        setTimeout(() => spark.remove(), 700);
+    }
+
+    // Tema completo (resumido + estudiado): destello verde en toda la fila
+    const st = appState.topics[topicId];
+    if (st.resumido && st.estudiado) {
+        card.classList.remove('topic-done');
+        void card.offsetWidth;
+        card.classList.add('topic-done');
+        setTimeout(() => card.classList.remove('topic-done'), 1200);
+    }
+}
+
 function toggleTopicCheck(topicId, field) {
     if (!appState.topics[topicId]) {
         appState.topics[topicId] = { resumido: false, estudiado: false, star: false, note: '' };
@@ -1183,7 +1224,7 @@ function toggleTopicCheck(topicId, field) {
 
     // Si hay filtro de pendientes/completados activo, re-renderizar para actualizar lista
     if (['pending-resumen', 'pending-estudio', 'completed'].includes(appState.statusFilter)) {
-        setTimeout(() => renderContent(), 180);
+        setTimeout(() => renderContent(), appState.topics[topicId][field] ? 800 : 180);
     } else {
         // Solo actualizar color de fondo de la tarjeta
         const card = document.getElementById(`card-${topicId}`);
@@ -1196,6 +1237,7 @@ function toggleTopicCheck(topicId, field) {
         }
     }
 
+    if (appState.topics[topicId][field]) celebrateCheck(topicId, field);
     showToast(field === 'resumido' ? 'Resumen actualizado' : 'Estudio actualizado');
 }
 
